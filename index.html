@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arno • AI Flashcard Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="shortcut icon" href="img/arno_logo.webp" type="image/x-icon">
+  <link rel="stylesheet" href="arno.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="white-bal"></div>
+  <div class="abs1"><img src="img/abs1.webp" draggable="false"></div>
+  <div class="abs2"><img src="img/abs2.webp" draggable="false"></div>
+
+  <div id="topLoader">
+    <div id="topLoaderFill"></div>
+  </div>
+
+  <nav>
+    
+    <a style="cursor: default;" class="nav-brand" href="#">
+      <span class="nav-title"><img src="img/arno_logo.webp" draggable="false">arno<span></span></span>
+    </a>
+    <div class="nav-right">
+      <a style="text-decoration: none;" href="https://www.linkedin.com/in/arhamhussain" target="_blank"><span class="chip">Built
+          by Arham Hussain <i class="ri-external-link-line"></i></span></a>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <div class="hero">
+      <a href="https://connor-act-ai.vercel.app" target="_blank" rel="noopener" class="connor-strip">
+        <span class="connor-icon"><i class="ri-chat-3-fill"></i></span>
+        <span class="connor-text">
+          <span class="connor-full">Meet <b class="connor-brand">CONNOR</b> your personal AI assistant</span>
+          <span class="connor-short">Meet <b class="connor-brand">CONNOR</b> AI</span>
+        </span>
+        <span class="connor-cta"><span class="connor-cta-label">Try it</span> <i class="ri-arrow-right-line"></i></span>
+      </a>
+      
+
+      <h1>Turn any document into<br><em>instant flashcards</em></h1>
+      <p>Upload study material and let Groq AI create up to <span class="underlined-word">10</span> focused flashcards.</p>
+    </div>
+
+    <div class="panel" id="uploadPanel">
+      <div class="panel-header">
+        <div class="panel-icon blue"><i class="ri-file-text-line"></i></div>
+        <div>
+          <div class="panel-title">Upload study material</div>
+          <div class="panel-sub">PDF, DOCX, TXT, Markdown, HTML, CSV, JSON or RTF</div>
+        </div>
+      </div>
+      <div class="panel-body">
+
+        <div class="upload-drop" id="uploadDrop">
+          <input type="file" id="fileInput" accept=".pdf,.txt,.md,.docx,.csv,.json,.html,.htm,.rtf" multiple>
+          <div class="upload-drop-icon"><i class="ri-upload-cloud-2-line"></i></div>
+          <h3>Drag and drop your files here</h3>
+          <p>or <strong>browse to upload</strong> from your device</p>
+        </div>
+
+        <div class="file-pill" id="filePill">
+          <span class="file-pill-icon"><i class="ri-file-list-3-line"></i></span>
+          <span class="file-pill-name" id="filePillName">—</span>
+          <span class="file-pill-size" id="filePillSize"></span>
+          <button class="file-pill-remove" id="filePillRemove" title="Remove file"><i
+              class="ri-close-line"></i></button>
+        </div>
+
+        <button class="btn-generate" id="genBtn" disabled>
+          <i class="ri-sparkling-2-fill"></i>
+          Generate Flashcards
+        </button>
+        
+
+        <div class="status-row" id="statusRow">
+          <div class="mini-spinner"></div>
+          <span class="status-label" id="statusLabel">Reading your file…</span>
+          <span class="eta-label" id="etaLabel">~15s</span>
+        </div>
+
+        <div class="error-row" id="errorRow">
+          <span class="error-icon"><i class="ri-error-warning-line"></i></span>
+          <span class="error-text" id="errorText"></span>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="cardsSection" style="display:none">
+
+      <div class="divider">Flashcards</div>
+      
+
+      <div class="cards-toolbar">
+        <span class="cards-label">Flashcards</span>
+        <span class="badge" id="cardsBadge">10 cards</span>
+      </div>
+
+      <div id="skeletonCard" class="skeleton-card-single" style="display:none"></div>
+
+      <div class="flashcard-viewer" id="flashcardViewer" style="display:none">
+
+        <div class="fc-card" id="fcCard" role="button" tabindex="0" aria-label="Flip flashcard">
+          <div class="fc-card-inner" id="fcCardInner">
+            <div class="fc-face fc-front">
+              <div class="fc-top">
+                <span class="fc-counter" id="fcCounter">1 / 10</span>
+              </div>
+              <div class="fc-question" id="fcQuestion">Question text</div>
+              <div class="fc-hint">Tap to see answer</div>
+            </div>
+            
+            <div class="fc-face fc-back">
+              <div class="fc-top">
+                <span class="fc-counter" id="fcCounterBack">1 / 10</span>
+                <span></span>
+              </div>
+              <div class="fc-answer" id="fcAnswer">Answer text</div>
+              <div class="fc-hint">Tap to see question</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fc-controls-wrap">
+          <div class="fc-controls">
+            <button class="fc-ctrl-btn fc-nav" id="fcPrevBtn" title="Previous"><i
+                class="ri-arrow-left-line"></i></button>
+            <button class="fc-ctrl-btn fc-wrong" id="fcWrongBtn" title="Got it wrong">
+              <i class="ri-close-line"></i><span class="fc-ctrl-count" id="fcWrongCount">0</span>
+            </button>
+            <button class="fc-ctrl-btn fc-right" id="fcRightBtn" title="Got it right">
+              <i class="ri-check-line"></i><span class="fc-ctrl-count" id="fcRightCount">0</span>
+            </button>
+            <button class="fc-ctrl-btn fc-nav" id="fcNextBtn" title="Next"><i class="ri-arrow-right-line"></i></button>
+          </div>
+          <div class="fc-toast" id="fcToast"></div>
+        </div>
+
+      </div>
+
+      <button class="reset-link" id="resetBtn"><i class="ri-restart-line"></i> Start over with a new file</button>
+    </div>
+
+  </main>
+
+  <script>
+    // ── CONFIG ──
+    const API_URL = '/api/generate';
+    const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
+
+    // ── STATE ──
+    let allCards = [];
+    let fcIndex = 0;
+    let correctCount = 0;
+    let wrongCount = 0;
+    let fileContent = '';
+    
+    let isGenerating = false;
+    let etaTimer = null;
+    let toastTimer = null;
+    let advanceTimer = null;
+    let flipTransitionTimer = null;
+    let uploadSequence = 0;
+    let generationAbort = null;
+    const answeredIndices = new Set();
+    let etaSeconds = 0;
+
+    
+    // ── ELEMENTS ──
+    const fileInput = document.getElementById('fileInput');
+    const uploadDrop = document.getElementById('uploadDrop');
+    const filePill = document.getElementById('filePill');
+    const filePillName = document.getElementById('filePillName');
+    const filePillSize = document.getElementById('filePillSize');
+    const filePillRemove = document.getElementById('filePillRemove');
+    const genBtn = document.getElementById('genBtn');
+    const statusRow = document.getElementById('statusRow');
+    const statusLabel = document.getElementById('statusLabel');
+    const etaLabel = document.getElementById('etaLabel');
+    const errorRow = document.getElementById('errorRow');
+    const errorText = document.getElementById('errorText');
+    const cardsSection = document.getElementById('cardsSection');
+    const cardsBadge = document.getElementById('cardsBadge');
+    const skeletonCard = document.getElementById('skeletonCard');
+    const flashcardViewer = document.getElementById('flashcardViewer');
+    const fcCard = document.getElementById('fcCard');
+    const fcCounter = document.getElementById('fcCounter');
+    const fcCounterBack = document.getElementById('fcCounterBack');
+    const fcQuestion = document.getElementById('fcQuestion');
+    const fcAnswer = document.getElementById('fcAnswer');
+    const fcPrevBtn = document.getElementById('fcPrevBtn');
+    const fcNextBtn = document.getElementById('fcNextBtn');
+    const fcWrongBtn = document.getElementById('fcWrongBtn');
+    const fcRightBtn = document.getElementById('fcRightBtn');
+    const fcWrongCount = document.getElementById('fcWrongCount');
+    const fcRightCount = document.getElementById('fcRightCount');
+    const fcToast = document.getElementById('fcToast');
+    const resetBtn = document.getElementById('resetBtn');
+    const topLoader = document.getElementById('topLoader');
+    const topFill = document.getElementById('topLoaderFill');
+
+    // ── FILE LOADING ──
+    uploadDrop.addEventListener('dragover', e => { e.preventDefault(); uploadDrop.classList.add('drag-over'); });
+    uploadDrop.addEventListener('dragleave', () => uploadDrop.classList.remove('drag-over'));
+    uploadDrop.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadDrop.classList.remove('drag-over');
+      if (!isGenerating && e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', () => { if (fileInput.files.length) handleFiles(fileInput.files); });
+
+    filePillRemove.addEventListener('click', () => {
+      if (isGenerating) return;
+      ++uploadSequence;
+      fileContent = '';
+      fileInput.value = '';
+      filePill.classList.remove('visible');
+      genBtn.disabled = true;
+      clearError();
+      cardsSection.style.display = 'none';
+    });
+
+    function fmtSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    async function handleFiles(files) {
+      const sequence = ++uploadSequence;
+      fileContent = '';
+      allCards = [];
+      answeredIndices.clear();
+      filePill.classList.remove('visible');
+      cardsSection.style.display = 'none';
+      clearError();
+      genBtn.disabled = true;
+      const selected = Array.from(files);
+      if (!selected.length) return;
+      const tooLarge = selected.find(f => f.size > MAX_UPLOAD_BYTES);
+      if (tooLarge) {
+        showError(`"${tooLarge.name}" is larger than 12 MB. Choose a smaller file.`);
+        return;
+      }
+      if (selected.reduce((sum, f) => sum + f.size, 0) > 20 * 1024 * 1024) {
+        showError('Your combined uploads exceed 20 MB. Choose fewer files.');
+        return;
+      }
+      statusLabel.textContent = 'Reading your documents…';
+      etaLabel.textContent = '';
+      statusRow.classList.add('visible');
+      try {
+        const extracted = [];
+        for (const file of selected) {
+          const text = (await readFile(file)).trim();
+          if (sequence !== uploadSequence) return;
+          if (text.replace(/\s/g, '').length < 12) {
+            throw new Error(`"${file.name}" contains no readable text. Scanned/image-only PDFs require OCR and cannot be read here.`);
+          }
+          extracted.push(`=== ${file.name} ===\n${text}`);
+        }
+        if (sequence !== uploadSequence) return;
+        fileContent = extracted.join('\n\n');
+        filePillName.textContent = selected.map(f => f.name).join(', ');
+        filePillSize.textContent = fmtSize(selected.reduce((sum, f) => sum + f.size, 0));
+        filePill.classList.add('visible');
+        genBtn.disabled = false;
+      } catch (error) {
+        if (sequence !== uploadSequence) return;
+        fileContent = '';
+        fileInput.value = '';
+        showError(error?.message || 'Unable to read this file.');
+      } finally {
+        if (sequence === uploadSequence) statusRow.classList.remove('visible');
+      }
+    }
+
+    let pdfjsLib = null;
+    async function loadExternalScript(url) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = () => { script.remove(); reject(new Error('Script unavailable')); };
+        document.head.appendChild(script);
+      });
+    }
+    async function getPdfJs() {
+      if (pdfjsLib) return pdfjsLib;
+      const sources = [
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+        'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js'
+      ];
+      for (const url of sources) {
+        try {
+          await loadExternalScript(url);
+          if (window.pdfjsLib) {
+            pdfjsLib = window.pdfjsLib;
+            // Disable external web workers so a blocked secondary CDN request cannot break PDF reading.
+            pdfjsLib.GlobalWorkerOptions.workerSrc = url.replace('pdf.min.js', 'pdf.worker.min.js');
+            return pdfjsLib;
+          }
+        } catch (_) { /* try alternative CDN */ }
+      }
+      throw new Error('PDF reader could not load. Check your internet connection or upload a TXT/DOCX file.');
+    }
+
+    // DOCX is a ZIP container of XML. Browser-native DecompressionStream enables
+    // reliable text extraction without loading a library from another website.
+    async function extractDocx(file) {
+      if (typeof DecompressionStream === 'undefined') {
+        throw new Error('DOCX extraction needs a modern browser such as Chrome, Edge or Firefox.');
+      }
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const view = new DataView(bytes.buffer);
+      const u16 = n => view.getUint16(n, true);
+      const u32 = n => view.getUint32(n, true);
+      let end = -1;
+      for (let at = bytes.length - 22; at >= Math.max(0, bytes.length - 65557); at--) {
+        if (u32(at) === 0x06054b50) { end = at; break; }
+      }
+      if (end < 0) throw new Error('Invalid DOCX file (ZIP directory not found).');
+      const count = u16(end + 10);
+      let at = u32(end + 16);
+      const decoder = new TextDecoder('utf-8');
+      let xmlText = '';
+      for (let i = 0; i < count; i++) {
+        if (at + 46 > bytes.length || u32(at) !== 0x02014b50) throw new Error('Corrupt DOCX directory.');
+        const method = u16(at + 10);
+        const compressedSize = u32(at + 20);
+        const filenameLength = u16(at + 28);
+        const extraLength = u16(at + 30);
+        const commentLength = u16(at + 32);
+        const localOffset = u32(at + 42);
+        const filename = decoder.decode(bytes.subarray(at + 46, at + 46 + filenameLength));
+        at += 46 + filenameLength + extraLength + commentLength;
+        if (filename !== 'word/document.xml') continue;
+        if (u32(localOffset) !== 0x04034b50) throw new Error('Corrupt DOCX document entry.');
+        const dataStart = localOffset + 30 + u16(localOffset + 26) + u16(localOffset + 28);
+        const dataEnd = dataStart + compressedSize;
+        if (dataEnd > bytes.length) throw new Error('Incomplete DOCX file.');
+        const compressed = bytes.slice(dataStart, dataEnd);
+        let content;
+        if (method === 0) content = compressed;
+        else if (method === 8) {
+          const expanded = new Blob([compressed]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+          content = new Uint8Array(await new Response(expanded).arrayBuffer());
+        } else throw new Error('This DOCX compression method is not supported.');
+        xmlText = decoder.decode(content);
+        break;
+      }
+      if (!xmlText) throw new Error('DOCX did not contain a readable Word document.');
+      const xml = new DOMParser().parseFromString(xmlText, 'application/xml');
+      if (xml.querySelector('parsererror')) throw new Error('Invalid XML inside DOCX.');
+      const paragraphs = Array.from(xml.getElementsByTagNameNS('*', 'p'));
+      return paragraphs.map(p => Array.from(p.getElementsByTagNameNS('*', 't')).map(t => t.textContent).join('')).filter(Boolean).join('\n');
+    }
+
+    function readRtf(text) {
+      return text.replace(/\\par\b/g, '\n')
+        .replace(/\\'[0-9a-f]{2}/gi, ' ')
+        .replace(/\\[a-z]+-?\d* ?/gi, '')
+        .replace(/\\[^a-z\s]/gi, '')
+        .replace(/[{}]/g, ' ').replace(/[ \t]{2,}/g, ' ');
+    }
+
+    async function readFile(file) {
+      const ext = file.name.toLowerCase().split('.').pop();
+      if (ext === 'doc') throw new Error('Old .doc files are not supported. Save it as DOCX or PDF first.');
+      if (ext === 'docx') return extractDocx(file);
+      if (ext === 'pdf') {
+        const lib = await getPdfJs();
+        try {
+          const doc = await lib.getDocument({ data: await file.arrayBuffer(), disableFontFace: true }).promise;
+          const texts = [];
+          for (let i = 1; i <= doc.numPages; i++) {
+            const page = await doc.getPage(i);
+            const content = await page.getTextContent();
+            texts.push(content.items.map(item => item.str).join(' '));
+            page.cleanup();
+          }
+          return texts.join('\n').trim();
+        } catch (error) {
+          throw new Error(`Could not extract PDF text: ${error.message}`);
+        }
+      }
+      const supported = new Set(['txt', 'md', 'csv', 'json', 'html', 'htm', 'rtf']);
+      if (!supported.has(ext)) throw new Error(`Unsupported file type: .${ext}. Use PDF, DOCX, TXT, MD, CSV, JSON, HTML or RTF.`);
+      let text = await file.text();
+      if (ext === 'html' || ext === 'htm') {
+        const doc = new DOMParser().parseFromString(text, 'text/html');
+        doc.querySelectorAll('script, style, noscript, svg').forEach(n => n.remove());
+        text = doc.body?.textContent || '';
+      } else if (ext === 'rtf') text = readRtf(text);
+      return text;
+    }
+
+    // ── GENERATE ──
+    genBtn.addEventListener('click', doGenerate);
+    async function doGenerate() {
+      if (isGenerating || !fileContent.trim()) return;
+      isGenerating = true;
+      clearError();
+      // Never display stale cards or a non-AI result after a failed request.
+      allCards = [];
+      clearTimeout(advanceTimer);
+      clearTimeout(flipTransitionTimer);
+      setLoading(true, 25);
+      fileInput.disabled = true;
+      filePillRemove.disabled = true;
+      generationAbort = new AbortController();
+      const timeoutId = setTimeout(() => generationAbort.abort(), 38000);
+      let deckGenerated = false;
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: fileContent }),
+          signal: generationAbort.signal,
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data?.error?.message || `Server returned ${response.status}.`);
+        if (data.mode !== 'ai') throw new Error('AI did not generate these cards. Please try again after checking your Groq configuration.');
+        if (!Array.isArray(data.cards) || !data.cards.length) throw new Error('AI returned no flashcards. Please try again.');
+        allCards = data.cards.filter(c => c && typeof c.q === 'string' && typeof c.a === 'string' && c.q && c.a).slice(0, 10);
+        if (!allCards.length) throw new Error('The response did not contain usable flashcards.');
+        fcIndex = 0;
+        correctCount = 0;
+        wrongCount = 0;
+        answeredIndices.clear();
+        fcRightCount.textContent = '0';
+        fcWrongCount.textContent = '0';
+        setProgress(100);
+        renderDeck();
+        deckGenerated = true;
+        if (data.truncated) showToast('Long document: AI used selected excerpts.');
+      } catch (error) {
+        const message = error?.name === 'AbortError' ? 'Request timed out. Please retry.' : (error?.message || 'Unable to generate cards.');
+        showError(message);
+        skeletonCard.style.display = 'none';
+        flashcardViewer.style.display = 'none';
+        cardsSection.style.display = 'none';
+      } finally {
+        clearTimeout(timeoutId);
+        generationAbort = null;
+        isGenerating = false;
+        fileInput.disabled = false;
+        filePillRemove.disabled = false;
+        setLoading(false);
+        // Scroll only after a successful AI response and after the loader is hidden.
+        if (deckGenerated) requestAnimationFrame(scrollToNewDeck);
+      }
+    }
+
+    function scrollToNewDeck() {
+      if (cardsSection.style.display !== 'block' || !allCards.length) return;
+      // Keep the heading visible below the 64px sticky navigation bar.
+      const top = Math.max(0, window.scrollY + cardsSection.getBoundingClientRect().top - 84);
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top, behavior: reducedMotion ? 'auto' : 'smooth' });
+    }
+
+    // ── DECK RENDER ──
+    function renderDeck() {
+      cardsSection.style.display = 'block';
+      skeletonCard.style.display = 'none';
+      flashcardViewer.style.display = 'flex';
+      cardsBadge.textContent = `${allCards.length} card${allCards.length !== 1 ? 's' : ''}`;
+      renderCard();
+    }
+
+    function renderCard() {
+      const card = allCards[fcIndex];
+      if (!card) return;
+      fcCard.classList.remove('flipped');
+      fcQuestion.textContent = card.q;
+      fcAnswer.textContent = card.a;
+      const label = `${fcIndex + 1} / ${allCards.length}`;
+      fcCounter.textContent = label;
+      fcCounterBack.textContent = label;
+      fcPrevBtn.disabled = fcIndex === 0;
+      fcNextBtn.disabled = fcIndex >= allCards.length - 1;
+      fcRightBtn.disabled = answeredIndices.has(fcIndex);
+      fcWrongBtn.disabled = answeredIndices.has(fcIndex);
+      markScrollableIfOverflowing(fcQuestion);
+      markScrollableIfOverflowing(fcAnswer);
+    }
+
+    // Long content (e.g. a full email address, a long fact) can exceed the
+    // fixed-height card. Rather than let it get clipped, we detect overflow
+    // and let the card scroll internally — top-aligned so you start reading
+    // from the beginning of the text, not the vertical middle of it.
+    function markScrollableIfOverflowing(el) {
+      el.classList.remove('is-scrollable');
+      // Measure after the browser has laid out the new text.
+      requestAnimationFrame(() => {
+        if (el.scrollHeight > el.clientHeight + 1) {
+          el.classList.add('is-scrollable');
+        }
+        el.scrollTop = 0;
+      });
+    }
+
+    fcCard.addEventListener('click', () => fcCard.classList.toggle('flipped'));
+    fcCard.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fcCard.classList.toggle('flipped'); }
+    });
+
+    fcPrevBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!fcPrevBtn.disabled && fcIndex > 0) { fcIndex--; renderCard(); }
+    });
+    fcNextBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!fcNextBtn.disabled && fcIndex < allCards.length - 1) { fcIndex++; renderCard(); }
+    });
+
+    fcRightBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (fcRightBtn.disabled || answeredIndices.has(fcIndex)) return;
+      answeredIndices.add(fcIndex);
+      lockAnswerButtons();
+      correctCount++;
+      fcRightCount.textContent = correctCount;
+      spawnConfetti(fcRightBtn);
+      advanceAfterAnswer();
+    });
+
+    fcWrongBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (fcWrongBtn.disabled || answeredIndices.has(fcIndex)) return;
+      answeredIndices.add(fcIndex);
+      lockAnswerButtons();
+      wrongCount++;
+      fcWrongCount.textContent = wrongCount;
+      showToast("You'll get it next time");
+      advanceAfterAnswer();
+    });
+
+    function lockAnswerButtons() {
+      fcRightBtn.disabled = true;
+      fcWrongBtn.disabled = true;
+      fcPrevBtn.disabled = true;
+      fcNextBtn.disabled = true;
+    }
+
+    function advanceAfterAnswer() {
+      clearTimeout(advanceTimer);
+      advanceTimer = setTimeout(() => {
+        if (fcIndex < allCards.length - 1) {
+          fcIndex++;
+          fcCard.classList.remove('flipped');
+          flipTransitionTimer = setTimeout(() => {
+            renderCard();
+            unlockAnswerButtons();
+          }, 260);
+        } else {
+          unlockAnswerButtons();
+        }
+      }, 800);
+    }
+
+    function unlockAnswerButtons() {
+      fcRightBtn.disabled = answeredIndices.has(fcIndex);
+      fcWrongBtn.disabled = answeredIndices.has(fcIndex);
+      fcPrevBtn.disabled = fcIndex === 0;
+      fcNextBtn.disabled = fcIndex >= allCards.length - 1;
+    }
+
+    function showToast(msg) {
+      fcToast.textContent = msg;
+      fcToast.classList.add('visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => fcToast.classList.remove('visible'), 1500);
+    }
+
+    function spawnConfetti(originEl) {
+      const rect = originEl.getBoundingClientRect();
+      const originX = rect.left + rect.width / 2;
+      const originY = rect.top + rect.height / 2;
+      const colors = ['#5b8def', '#34d399', '#fbbc04', '#f76f6f', '#a78bfa'];
+      const pieceCount = 18;
+
+      for (let i = 0; i < pieceCount; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 60 + Math.random() * 90;
+        const dx = Math.cos(angle) * distance;
+        const dy = Math.sin(angle) * distance - 30;
+        const rot = (Math.random() * 360 - 180) + 'deg';
+        piece.style.left = originX + 'px';
+        piece.style.top = originY + 'px';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.setProperty('--dx', dx + 'px');
+        piece.style.setProperty('--dy', dy + 'px');
+        piece.style.setProperty('--rot', rot);
+        if (Math.random() > 0.5) piece.style.borderRadius = '50%';
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 950);
+      }
+    }
+
+    // ── RESET ──
+    resetBtn.addEventListener('click', () => {
+      ++uploadSequence;
+      allCards = []; fcIndex = 0; correctCount = 0; wrongCount = 0; fileContent = ''; answeredIndices.clear();
+      fcRightCount.textContent = '0'; fcWrongCount.textContent = '0';
+      clearTimeout(advanceTimer);
+      clearTimeout(flipTransitionTimer);
+      fileInput.value = '';
+      filePill.classList.remove('visible');
+      cardsSection.style.display = 'none';
+      flashcardViewer.style.display = 'none';
+      genBtn.disabled = true;
+      statusRow.classList.remove('visible');
+      clearError();
+      topLoader.classList.remove('active');
+      topFill.style.width = '0%';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // ── LOADING STATE ──
+    function setLoading(on, initialEta) {
+      if (on) {
+        genBtn.disabled = true;
+        statusRow.classList.add('visible');
+        statusLabel.textContent = 'Analyzing your material…';
+        topLoader.classList.add('active');
+        setProgress(10);
+        etaSeconds = initialEta || 18;
+        etaLabel.textContent = `~${etaSeconds}s`;
+        stopETA();
+        etaTimer = setInterval(() => {
+          etaSeconds = Math.max(1, etaSeconds - 1);
+          etaLabel.textContent = `~${etaSeconds}s`;
+        }, 1000);
+        cardsSection.style.display = 'block';
+        if (allCards.length === 0) {
+          skeletonCard.style.display = 'block';
+          flashcardViewer.style.display = 'none';
+        }
+      } else {
+        genBtn.disabled = false;
+        statusRow.classList.remove('visible');
+        topLoader.classList.remove('active');
+        topFill.style.width = '0%';
+        stopETA();
+      }
+    }
+
+    function bumpEta(seconds) {
+      etaSeconds = Math.max(etaSeconds, seconds);
+      etaLabel.textContent = `~${etaSeconds}s`;
+    }
+
+    function setProgress(pct) {
+      topFill.style.width = pct + '%';
+    }
+
+    function stopETA() {
+      if (etaTimer) { clearInterval(etaTimer); etaTimer = null; }
+    }
+
+    // ── ERROR ──
+    function showError(msg) {
+      errorRow.classList.add('visible');
+      errorText.textContent = msg;
+    }
+    function clearError() {
+      errorRow.classList.remove('visible');
+      errorText.textContent = '';
+    }
+  </script>
+</body>
+
+</html>
